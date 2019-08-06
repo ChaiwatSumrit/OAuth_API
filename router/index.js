@@ -1,6 +1,5 @@
 module.exports = function (app) {
     const request = require('../controller/product')
-    const keycloak = require('keycloak-js')
     
     app.post('/addProduct', async (req, res) => {
         try {
@@ -29,3 +28,4 @@ module.exports = function (app) {
 
 
 }
+

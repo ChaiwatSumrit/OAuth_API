@@ -1,13 +1,78 @@
-var express = require('express')
-var bodyParser = require('body-parser')
+const express = require('express')
+const bodyParser = require('body-parser')
+const logger = require('../util/logger.js');
+const request = require("request");
 // const swaggerUi = require('swagger-ui-express');
-module.exports = function()
-{
+
+
+module.exports = function () {
     var app = express()
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(bodyParser.text())
     // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+    const keycloakHost = '54.169.66.243';
+    const keycloakPort = '8080';
+    const realmName = 'master';
+
+    // check each request for a valid bearer token
+    app.use((req, res, next) => {
+        // assumes bearer token is passed as an authorization header
+
+        if (req.headers.authorization) {
+            // configure the request to your keycloak server
+            const options = {
+                method: 'GET',
+                // Profile server API
+                // url: `http://${keycloakHost}:${keycloakPort}/auth/realms/${realmName}/protocol/openid-connect/userinfo`,
+                // Auth server API
+                url: `http:${keycloakHost}:${keycloakPort}/auth/realms/${realmName}/protocol/openid-connect/token/introspect`,
+                headers: {
+                    // add the token you received to the userinfo request, sent to keycloak
+                    Authorization: req.headers.authorization,
+                },
+            };
+
+            logger.debug("Authorization : " + options.headers.Authorization)
+
+            // send a request to the userinfo endpoint on keycloak
+            request(options, (error, response, body) => {
+                if (error) throw new Error(error);
+
+                logger.debug("code status : " + response.statusCode);
+                // logger.debug("response : "+JSON.stringify(response))
+
+                // if the request status isn't "OK", the token is invalid
+                if (response.statusCode !== 200) {
+                    res.status(401).json({
+                        error: `unauthorized`,
+                    });
+                }
+                // the token is valid pass request onto your next function
+                else {
+                    logger.info("[Auth.server] Token is Valid, status code : " + response.statusCode);
+                    next();
+                }
+            });
+        } else {
+            // there is no token, don't process request further
+            res.status(401).json({
+                error: `unauthorized`,
+            });
+        }
+    });
+
     require('../router/index.js')(app)
+
+    // catch 404 and forward to error handler
+    app.use((req, res, next) => {
+        const err = new Error('Not Found');
+        err.status = 404;
+        next(err);
+    });
+
+
     return app
 }
