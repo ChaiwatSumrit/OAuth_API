@@ -60,6 +60,7 @@ module.exports = function () {
                 // the token is valid pass request onto your next function
                 else {
                     logger.info("[Auth.server] Token is Valid, status code : " + response.statusCode);
+                    console.log("body "+body)
                     req.body.owner = JSON.parse(body).preferred_username
                     
                     next();
