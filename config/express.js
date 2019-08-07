@@ -3,10 +3,11 @@ const bodyParser = require('body-parser')
 const logger = require('../util/logger.js');
 const request = require("request");
 // const swaggerUi = require('swagger-ui-express');
-
+const cors = require("cors")
 
 module.exports = function () {
     var app = express()
+    app.use(cors({origin: '*'}));
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(bodyParser.text())

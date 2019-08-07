@@ -1,7 +1,8 @@
 
-// const converthash = require('../util/hash256.js')
 const logger = require('../util/logger.js');
 const mongoose = require('../util/mongoose.js');
+
+//collection on mongoDB
 const productModels = require('../models/product')
 
 class request {
@@ -63,7 +64,7 @@ class request {
             var product = {
                 name: request.name.toLowerCase(),
                 unit_price: request.unit_price,
-                currency: request.currency,
+                currency: request.currency.toLowerCase(),
                 quantity: request.quantity,
             }
 
