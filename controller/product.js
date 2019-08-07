@@ -5,56 +5,148 @@ const mongoose = require('../util/mongoose.js');
 const productModels = require('../models/product')
 
 class request {
-
-
-    async addProduct(req) {
-        let functionName = `[addProductByID]`
+    
+    async addProduct(request) {
+        let functionName = `[addProduct]`
         logger.info(functionName)
+        logger.debug(`request : ${JSON.stringify(request)}`)
+
         return new Promise(async function (resolve, reject) {
 
+            //check exist
+            var productcheckNotFound = await new mongoose().checkNotFound(
+                { identity: request.identity}, 
+                "product"
+                )
+            if (!productcheckNotFound) {
+                let massageError = `An identity for the product ${request.identity} exist in the MongoDB`
+                logger.error(massageError);
+                reject({ error: massageError });
+            }
+
             var product = {
-                identity: req.identity,
-                name: req.name.toLowerCase()
+                identity: request.identity.toLowerCase(),
+                name: request.name.toLowerCase(),
+                unit_price: request.unit_price,
+                currency: request.currency.toLowerCase(),
+                quantity: request.quantity,
+                owner: request.owner.toLowerCase(),
             }
             const models = new productModels(product)
             // add user in mongoDB
             await models.save()
-            
-            logger.debug(`Add productObject to mongoDB: ${JSON.stringify(product)}`)
+
+            logger.debug(`Add productObject for ${request.owner} in mongoDB: ${JSON.stringify(product)}`)
 
             resolve(product)
         })
     }
-    
-    async getProductByID(userID) {
-        let functionName = `[getProductByID]`
+
+    async updateProduct(request) {
+        let functionName = `[updateProduct]`
         logger.info(functionName)
+        logger.debug(`request : ${JSON.stringify(request)}`)
+
         return new Promise(async function (resolve, reject) {
 
-            // var adminExists = await new mongoose().compare({ enrollmentID: "admin" }, "admin")
+            //check NotFound
+            var productcheckNotFound = await new mongoose().checkNotFound(
+                { identity: request.identity, owner: request.owner },
+                "product"
+            )
+            if (productcheckNotFound) {
+                let massageError = `An identity for the product ${request.identity} Not Found in the MongoDB`
+                logger.error(massageError);
+                reject({ error: massageError });
+            }
 
-            // if (adminExists) {
-            //     logger.error('An identity for the admin user "admin" does not exist in the MongoDB');
-            //     logger.error('Run the enrollAdmin application before retrying');
-            //     return ('An identity for the admin user "admin" does not exist in the MongoDB' + '\n' +
-            //         'Run the enrollAdmin application before retrying');
-            // }
-            
-            var productObject =  await new mongoose().get({ identity: userID }, 'product');
-            if(productObject.error){
+            var product = {
+                name: request.name.toLowerCase(),
+                unit_price: request.unit_price,
+                currency: request.currency,
+                quantity: request.quantity,
+            }
+
+            await new mongoose().update(
+                { identity: request.identity, owner: request.owner },
+                "product",
+                product
+            )
+
+            logger.info(`Update productObject for ${request.owner} in mongoDB: ${JSON.stringify(product)}`)
+
+            resolve(`Update productObject for ${request.owner} in mongoDB: ${JSON.stringify(product)}`)
+        })
+    }
+
+    async deleteProduct(request) {
+        let functionName = `[deleteProduct]`
+        logger.info(functionName + "111")
+        logger.debug(`request : ${JSON.stringify(request)}`)
+
+        return new Promise(async function (resolve, reject) {
+
+            // check NotFound
+            var productcheckNotFound = await new mongoose().checkNotFound(
+                { identity: request.identity },
+                "product"
+            )
+            if (productcheckNotFound) {
+                let massageError = `An identity for the product ${request.productID} Not Found in the MongoDB`
+                logger.error(massageError);
+                reject({ error: massageError });
+            }
+
+
+
+            await new mongoose().delete(
+                { identity: request.productID, owner: request.owner },
+                "product"
+            )
+
+            logger.info(`Delete productObject for ${request.owner} in mongoDB: ${JSON.stringify(request)}`)
+
+            resolve(`Delete productObject for ${request.owner} in mongoDB: ${JSON.stringify(request)}`)
+        })
+    }
+
+    async getProductByID(productID, ownerName) {
+        let functionName = `[getProductByID]`
+        logger.info(functionName)
+        logger.debug(`productID : ${productID} ,ownerName : ${ownerName}`)
+        return new Promise(async function (resolve, reject) {
+
+            var productObject = await new mongoose().get(
+                { dentity: productID, owner: ownerName },
+                'product'
+            );
+            if (productObject.error) {
                 logger.error(productObject.error)
                 reject(productObject)
             }
-            logger.debug(`get productObject form mongoDB: ${JSON.stringify(productObject)}`)
+            logger.info(`get productObject for ${request.owner} form mongoDB: ${JSON.stringify(productObject)}`)
 
             resolve(productObject)
         })
     }
 
-    
+    async getAllProductByOwner(ownerName) {
+        let functionName = `[getAllProductByOwner]`
+        logger.info(functionName)
+        logger.debug(`ownerName : ${ownerName}`)
+        return new Promise(async function (resolve, reject) {
 
+            var productObject = await new mongoose().get({ owner: ownerName }, 'product');
+            if (productObject.error) {
+                logger.error(productObject.error)
+                reject(productObject)
+            }
 
+            logger.info(`get productObject for ${request.owner} form mongoDB: ${JSON.stringify(productObject)}`)
 
+            resolve(productObject)
+        })
+    }
 
 }
 module.exports = request

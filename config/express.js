@@ -19,16 +19,22 @@ module.exports = function () {
 
     // check each request for a valid bearer token
     app.use((req, res, next) => {
-        // assumes bearer token is passed as an authorization header
 
+        if(req.body.owner){
+            res.status(401).json({
+                error: `Do not send owner(${req.body.owner}) to yourself`
+            });
+        }
+
+        // assumes bearer token is passed as an authorization header
         if (req.headers.authorization) {
             // configure the request to your keycloak server
             const options = {
                 method: 'GET',
                 // Profile server API
-                // url: `http://${keycloakHost}:${keycloakPort}/auth/realms/${realmName}/protocol/openid-connect/userinfo`,
+                url: `http://${keycloakHost}:${keycloakPort}/auth/realms/${realmName}/protocol/openid-connect/userinfo`,
                 // Auth server API
-                url: `http:${keycloakHost}:${keycloakPort}/auth/realms/${realmName}/protocol/openid-connect/token/introspect`,
+                // url: `http:${keycloakHost}:${keycloakPort}/auth/realms/${realmName}/protocol/openid-connect/token/introspect`,
                 headers: {
                     // add the token you received to the userinfo request, sent to keycloak
                     Authorization: req.headers.authorization,
@@ -53,6 +59,8 @@ module.exports = function () {
                 // the token is valid pass request onto your next function
                 else {
                     logger.info("[Auth.server] Token is Valid, status code : " + response.statusCode);
+                    req.body.owner = JSON.parse(body).preferred_username
+                    
                     next();
                 }
             });
@@ -68,7 +76,7 @@ module.exports = function () {
 
     // catch 404 and forward to error handler
     app.use((req, res, next) => {
-        const err = new Error('Not Found');
+        const err = new Error('URL Not Found');
         err.status = 404;
         next(err);
     });

@@ -2,13 +2,14 @@
  class  mongoose {
 
 //get data
-    async get(key, collectionName){
+    async get(identity, collectionName){
         const Collection = require('../models/'+collectionName)
-        var result = await Collection.find(key)
+        var result = await Collection.find(identity)
+        console.log(result)
         if(!result[0]){
             var error = {
-                error : "error : key not found key : ",
-                key : key,
+                error : "error : Not Found Identity in MongoDB",
+                identity : identity,
                 collectionName : collectionName
             }
             return error
@@ -16,61 +17,61 @@
         return result
     }
     
-//compare data(ture/flase)
-    async compare(key,collectionName){
+//checkNotFound data(ture/flase)
+    async checkNotFound(identity, collectionName){
         const Collection = require('../models/'+collectionName)
-        var result = await Collection.find(key)
+        var result = await Collection.find(identity)
         console.log(`find value in DB result : ${result}`)
-        if(!result[0]){ return true } // nil
-        else { return false }      // value
+        if(!result[0]){ return true } // nil NotFound : T
+        else { return false }      // value : F
     }
 
 //delete data 
-    async delete(key,collectionName){
+    async delete(identity, collectionName){
         const Collection = require('../models/'+collectionName)
-        var result = await Collection.find(key)
+        var result = await Collection.find(identity)
         if(!result[0]){
             var error = {
-                            error : "error : key not found key : ",
-                            key : key,
+                            error : "error : Not Found Identity in MongoDB",
+                            identity : identity,
                             collectionName : collectionName
                         }
             return error
         }else{ 
-            var result = await Collection.remove(key)  
+            var result = await Collection.remove(identity)  
  
             return result
         }       
     }
 //update
-    async update(key,collectionName,value){
+    async update(identity, collectionName, value){
         const Collection = require('../models/'+collectionName)
-        var result = await Collection.find(key)
+        var result = await Collection.find(identity)
         if(!result[0]){
             var error = {
-                            error : "error : key not found key : ",
-                            key : key,
+                            error : "error : Not Found Identity in MongoDB",
+                            identity : identity,
                             collectionName : collectionName
                         }
             return error
         }
-        var resultup = await Collection.update(key,{$set:value})
+        var resultup = await Collection.update(identity,{$set:value})
         return resultup   
     }
-
-    async  insert(key,collectionName, data) {
+//insert
+    async  insert(identity, collectionName, data) {
         const Collection = require('../models/'+collectionName)
-        var result = await Collection.find(key)
+        var result = await Collection.find(identity)
         if(!result[0]){
             var error = {
-                            error : "error : key not found key : ",
-                            key : key,
+                            error : "error : Not Found Identity in MongoDB",
+                            identity : identity,
                             collectionName : collectionName
                         }
             return error
         }
         var resultup = await Collection.insertOne({
-            key: key,
+            identity: identity,
             val: data
         });
         return resultup  
