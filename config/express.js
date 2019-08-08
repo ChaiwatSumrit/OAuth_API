@@ -58,8 +58,8 @@ module.exports = function () {
                 // the token is valid pass request onto your next function
                 else {
                     logger.info("[Auth.server] Token is Valid, status code : " + response.statusCode);
-                    console.log("body "+body)
-                    console.log("body "+body.preferred_username)
+                    console.log("body "+JSON.parse(body))
+                    console.log("body "+JSON.parse(body).preferred_username)
 
                     req.body.owner = JSON.parse(body).preferred_username
                     
