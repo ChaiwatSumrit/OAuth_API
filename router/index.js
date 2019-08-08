@@ -43,7 +43,7 @@ module.exports = function (app) {
     })
 
     app.post('/getAllProductByOwner', async (req, res) => {
-        console.log(`req.body : ${JSON.stringify(req)}`)
+        console.log(`req.body : ${req}`)
         try {
             
 
