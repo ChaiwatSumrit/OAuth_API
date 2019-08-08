@@ -20,7 +20,6 @@ module.exports = function () {
 
     // check each request for a valid bearer token
     app.use((req, res, next) => {
-
         if(req.body.owner){
             res.status(401).json({
                 error: `Do not send owner(${req.body.owner}) to yourself`
@@ -38,7 +37,7 @@ module.exports = function () {
                 // url: `http:${keycloakHost}:${keycloakPort}/auth/realms/${realmName}/protocol/openid-connect/token/introspect`,
                 headers: {
                     // add the token you received to the userinfo request, sent to keycloak
-                    Authorization: req.headers.authorization,
+                    Authorization: req.headers.authorization,//Bearer
                 },
             };
 
@@ -47,7 +46,6 @@ module.exports = function () {
             // send a request to the userinfo endpoint on keycloak
             request(options, (error, response, body) => {
                 if (error) throw new Error(error);
-
                 logger.debug("code status : " + response.statusCode);
                 // logger.debug("response : "+JSON.stringify(response))
 
@@ -61,6 +59,8 @@ module.exports = function () {
                 else {
                     logger.info("[Auth.server] Token is Valid, status code : " + response.statusCode);
                     console.log("body "+body)
+                    console.log("body "+body.preferred_username)
+
                     req.body.owner = JSON.parse(body).preferred_username
                     
                     next();
