@@ -44,7 +44,7 @@ module.exports = function (app) {
 
     app.post('/getAllProductByOwner', async (req, res) => {
         try {
-            logger.debug(`req.body : ${JSON.stringify(JSON.parse(body).body)}`)
+            logger.debug(`req.body : ${JSON.stringify(JSON.parse(body).owner)}`)
 
             let userName = req.body.owner
             var result = (await new request().getAllProductByOwner(userName))
