@@ -19,10 +19,12 @@ class request {
                 { identity: request.identity}, 
                 "product"
                 )
+                logger.debug("check exist : "+productcheckNotFound)
             if (!productcheckNotFound) {
                 let massageError = `An identity for the product ${request.identity} exist in the MongoDB`
                 logger.error(massageError);
                 reject({ error: massageError });
+                return
             }
 
             var product = {
@@ -59,6 +61,7 @@ class request {
                 let massageError = `An identity for the product ${request.identity} Not Found in the MongoDB`
                 logger.error(massageError);
                 reject({ error: massageError });
+                return
             }
 
             var product = {
@@ -96,6 +99,7 @@ class request {
                 let massageError = `An identity for the product ${request.productID} Not Found in the MongoDB`
                 logger.error(massageError);
                 reject({ error: massageError });
+                return
             }
 
 
@@ -124,6 +128,7 @@ class request {
             if (productObject.error) {
                 logger.error(productObject.error)
                 reject(productObject)
+                return
             }
             logger.info(`get productObject for ${request.owner} form mongoDB: ${JSON.stringify(productObject)}`)
 
@@ -141,6 +146,7 @@ class request {
             if (productObject.error) {
                 logger.error(productObject.error)
                 reject(productObject)
+                return
             }
 
             logger.info(`get productObject for ${request.owner} form mongoDB: ${JSON.stringify(productObject)}`)
