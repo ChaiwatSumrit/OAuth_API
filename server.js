@@ -7,10 +7,10 @@ var db = mongoose();
 
 var app = express()
 
-const port = process.env.PORT || 8000
+const port = process.env.PORT || 4200
 app.listen(port, () => {
-  logger.info('http://localhost:'+port+'/api-docs/')
+  // logger.info('http://localhost:'+port+'/api-docs/')
   // http://localhost:9999/api-docs/
 
-  logger.info('Start server at port ' + port)
+  logger.info('Start server at port : ' + port)
 })
