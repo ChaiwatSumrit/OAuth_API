@@ -6,7 +6,7 @@ const mongoose = require('../util/mongoose.js');
 const productModels = require('../models/product')
 
 class request {
-    
+
     async addProduct(request) {
         let functionName = `[addProduct]`
         logger.info(functionName)
@@ -14,12 +14,21 @@ class request {
 
         return new Promise(async function (resolve, reject) {
 
+            var product = {
+                identity: request.identity.toLowerCase() || reject('identity is required.'),
+                name: request.name.toLowerCase() || reject('name is required.'),
+                unit_price: request.unit_price || reject('unit_price is required.'),
+                currency: request.currency.toLowerCase() || reject('currency is required.'),
+                quantity: request.quantity || reject('identity is required.'),
+                owner: request.owner.toLowerCase() || reject('owner is required.'),
+            }
+
             //check exist
             var productcheckNotFound = await new mongoose().checkNotFound(
-                { identity: request.identity.toLowerCase()}, 
+                { identity: request.identity.toLowerCase() },
                 "product"
-                )
-                logger.debug("check exist : "+productcheckNotFound)
+            )
+            logger.debug("check exist : " + productcheckNotFound)
             if (!productcheckNotFound) {
                 let massageError = `An identity for the product ${request.identity} exist in the MongoDB`
                 logger.error(massageError);
@@ -27,14 +36,7 @@ class request {
                 return
             }
 
-            var product = {
-                identity: request.identity.toLowerCase(),
-                name: request.name.toLowerCase(),
-                unit_price: request.unit_price,
-                currency: request.currency.toLowerCase(),
-                quantity: request.quantity,
-                owner: request.owner.toLowerCase(),
-            }
+
             const models = new productModels(product)
             // add user in mongoDB
             await models.save()
@@ -52,9 +54,19 @@ class request {
 
         return new Promise(async function (resolve, reject) {
 
+            var product = {
+                name: request.name.toLowerCase() || reject('name is required.'),
+                unit_price: request.unit_price || reject('unit_price is required.'),
+                currency: request.currency.toLowerCase() || reject('currency is required.'),
+                quantity: request.quantity || reject('quantity is required.'),
+            }
+
             //check NotFound
             var productcheckNotFound = await new mongoose().checkNotFound(
-                { identity: request.identity.toLowerCase(), owner: request.owner.toLowerCase() },
+                {
+                    identity: request.identity.toLowerCase() || reject('identity is required.'),
+                    owner: request.owner.toLowerCase() || reject('owner is required.'),
+                },
                 "product"
             )
             if (productcheckNotFound) {
@@ -64,12 +76,7 @@ class request {
                 return
             }
 
-            var product = {
-                name: request.name.toLowerCase(),
-                unit_price: request.unit_price,
-                currency: request.currency.toLowerCase(),
-                quantity: request.quantity,
-            }
+
 
             await new mongoose().update(
                 { identity: request.identity.toLowerCase(), owner: request.owner.toLowerCase() },
@@ -92,7 +99,7 @@ class request {
 
             // check NotFound
             var productcheckNotFound = await new mongoose().checkNotFound(
-                { identity: request.identity.toLowerCase() },
+                { identity: request.identity.toLowerCase() || reject('identity is required.') },
                 "product"
             )
             if (productcheckNotFound) {
@@ -122,7 +129,7 @@ class request {
         return new Promise(async function (resolve, reject) {
 
             var productObject = await new mongoose().get(
-                { dentity: productID, owner: ownerName },
+                { dentity: productID , owner: ownerName },
                 'product'
             );
             if (productObject.error) {
@@ -142,7 +149,7 @@ class request {
         logger.debug(`ownerName : ${ownerName}`)
         return new Promise(async function (resolve, reject) {
 
-            var productObject = await new mongoose().get({ owner: ownerName.toLowerCase() }, 'product');
+            var productObject = await new mongoose().get({ owner: ownerName.toLowerCase() || reject('ownerName is required.') }, 'product');
             if (productObject.error) {
                 logger.error(productObject.error)
                 reject(productObject)
