@@ -16,7 +16,7 @@ class request {
 
             //check exist
             var productcheckNotFound = await new mongoose().checkNotFound(
-                { identity: request.identity}, 
+                { identity: request.identity.toLowerCase()}, 
                 "product"
                 )
                 logger.debug("check exist : "+productcheckNotFound)
@@ -54,7 +54,7 @@ class request {
 
             //check NotFound
             var productcheckNotFound = await new mongoose().checkNotFound(
-                { identity: request.identity, owner: request.owner },
+                { identity: request.identity.toLowerCase(), owner: request.owner.toLowerCase() },
                 "product"
             )
             if (productcheckNotFound) {
@@ -72,7 +72,7 @@ class request {
             }
 
             await new mongoose().update(
-                { identity: request.identity, owner: request.owner },
+                { identity: request.identity.toLowerCase(), owner: request.owner.toLowerCase() },
                 "product",
                 product
             )
@@ -85,18 +85,18 @@ class request {
 
     async deleteProduct(request) {
         let functionName = `[deleteProduct]`
-        logger.info(functionName + "111")
+        logger.info(functionName)
         logger.debug(`request : ${JSON.stringify(request)}`)
 
         return new Promise(async function (resolve, reject) {
 
             // check NotFound
             var productcheckNotFound = await new mongoose().checkNotFound(
-                { identity: request.identity },
+                { identity: request.identity.toLowerCase() },
                 "product"
             )
             if (productcheckNotFound) {
-                let massageError = `An identity for the product ${request.productID} Not Found in the MongoDB`
+                let massageError = `An identity for the product ${request.identity} Not Found in the MongoDB`
                 logger.error(massageError);
                 reject({ error: massageError });
                 return
@@ -105,7 +105,7 @@ class request {
 
 
             await new mongoose().delete(
-                { identity: request.productID, owner: request.owner },
+                { identity: request.identity.toLowerCase(), owner: request.owner.toLowerCase() },
                 "product"
             )
 
@@ -142,7 +142,7 @@ class request {
         logger.debug(`ownerName : ${ownerName}`)
         return new Promise(async function (resolve, reject) {
 
-            var productObject = await new mongoose().get({ owner: ownerName }, 'product');
+            var productObject = await new mongoose().get({ owner: ownerName.toLowerCase() }, 'product');
             if (productObject.error) {
                 logger.error(productObject.error)
                 reject(productObject)
