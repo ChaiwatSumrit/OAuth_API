@@ -17,7 +17,7 @@
     "express-session": "^1.16.2",
     "keycloak-connect": "^6.0.1",
     "keycloak-js": "^6.0.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "mongoose": "^5.5.14",
     "node-gyp": "^5.0.2",
     "nodemon": "^1.19.1",
